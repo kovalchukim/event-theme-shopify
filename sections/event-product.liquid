@@ -8,7 +8,7 @@
         <h1 class="event-title">{{ product.title }}</h1>
       </div>
       <div class="event-price-block">
-        <span class="event-price">{{ product.price | money }}</span>
+        <span id="product-price" class="event-price">{{ product.price | money }}</span>
       </div>
       <div class="event-tax-block">
         {% if shop.taxes_included %}

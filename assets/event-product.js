@@ -29,8 +29,37 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     updateBuyButton();
+    updatePrice();
   };
 
+  const updatePrice = () => {
+    const selectedCount = Object.keys(selectedOptions).length;
+    const totalOptions = optionGroups.length;
+    const priceEl = document.getElementById('product-price');
+
+    let match;
+
+    if (selectedCount === totalOptions) {
+      match = variantData.find(variant => {
+        return variant.available && variant.options.every((optValue, i) => {
+          return selectedOptions[i] === optValue;
+        });
+      });
+    }
+
+    if (match) {
+      priceEl.textContent = (match.price / 100).toFixed(2) + ' ' + Shopify.currency.active;
+    } else {
+      // Якщо повністю не вибрано — показати мінімальну ціну
+      const cheapest = variantData
+        .filter(v => v.available)
+        .sort((a, b) => a.price - b.price)[0];
+
+      if (cheapest) {
+        priceEl.textContent = (cheapest.price / 100).toFixed(2) + ' ' + Shopify.currency.active;
+      }
+    }
+  };
 
   const updateBuyButton = () => {
     const selectedCount = Object.keys(selectedOptions).length;
@@ -101,4 +130,5 @@ document.addEventListener('DOMContentLoaded', () => {
   });
 
   updateOptionStates();
+  updatePrice();
 });
