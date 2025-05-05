@@ -1,47 +1,47 @@
-<section class='event-section'>
-    <div class='event-container'>
-        <div class='event-left'>
-            {{ product.featured_image | image_url: width: 800 | image_tag }}
-        </div>
-        <div class='event-right'>
-            <div class='event-title-block'>
-                <h1 class='event-title'>{{ product.title }}</h1>
-            </div>
-            <div class='event-price-block'>
-                <span class='event-price'>{{ product.price | money }}</span>
-            </div>
-            <div class='event-tax-block'>
-                {% if shop.taxes_included %}
-                    <span class='event-tax-note'>Ціна з урахуванням податків</span>
-                {% else %}
-                    <span class='event-tax-note'>Податки розраховуються при оформленні замовлення</span>
-                {% endif %}
-            </div>
-
-            <div class='event-options-block' data-variants='{{ product.variants | json }}'>
-                {% for option in product.options_with_values %}
-                    <label class='event-label'>{{ option.name }}</label>
-                    <div class='event-options' data-option-index='{{ forloop.index0 }}'>
-                        {% for value in option.values %}
-                            <div
-                                    class='event-option'
-                                    data-value='{{ value | escape }}'
-                                    tabindex='0'
-                                    role='button'
-                                    aria-pressed='false'
-                            >
-                                {{ value }}
-                            </div>
-                        {% endfor %}
-                    </div>
-                {% endfor %}
-            </div>
-
-            <div class='event-description-block'>
-                <div class='event-description'>{{ product.description }}</div>
-            </div>
-        </div>
+<section class="event-section">
+  <div class="event-container">
+    <div class="event-left">
+      {{ product.featured_image | image_url: width: 800 | image_tag }}
     </div>
+    <div class="event-right">
+      <div class="event-title-block">
+        <h1 class="event-title">{{ product.title }}</h1>
+      </div>
+      <div class="event-price-block">
+        <span class="event-price">{{ product.price | money }}</span>
+      </div>
+      <div class="event-tax-block">
+        {% if shop.taxes_included %}
+          <span class="event-tax-note">Ціна з урахуванням податків</span>
+        {% else %}
+          <span class="event-tax-note">Податки розраховуються при оформленні замовлення</span>
+        {% endif %}
+      </div>
+
+      <div class="event-options-block" data-variants="{{ product.variants | json }}">
+        {% for option in product.options_with_values %}
+          <label class="event-label">{{ option.name }}</label>
+          <div class="event-options" data-option-index="{{ forloop.index0 }}">
+            {% for value in option.values %}
+              <div
+                class="event-option"
+                data-value="{{ value | escape }}"
+                tabindex="0"
+                role="button"
+                aria-pressed="false"
+              >
+                {{ value }}
+              </div>
+            {% endfor %}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="event-description-block">
+        <div class="event-description">{{ product.description }}</div>
+      </div>
+    </div>
+  </div>
 </section>
 
 {{ 'event-product.css' | asset_url | stylesheet_tag }}
