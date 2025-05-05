@@ -1,241 +1,48 @@
 <section class='event-section'>
-  <div class='event-container'>
-    <div class='event-left'>
-      {{ product.featured_image | image_url: width: 800 | image_tag }}
+    <div class='event-container'>
+        <div class='event-left'>
+            {{ product.featured_image | image_url: width: 800 | image_tag }}
+        </div>
+        <div class='event-right'>
+            <div class='event-title-block'>
+                <h1 class='event-title'>{{ product.title }}</h1>
+            </div>
+            <div class='event-price-block'>
+                <span class='event-price'>{{ product.price | money }}</span>
+            </div>
+            <div class='event-tax-block'>
+                {% if shop.taxes_included %}
+                    <span class='event-tax-note'>Ціна з урахуванням податків</span>
+                {% else %}
+                    <span class='event-tax-note'>Податки розраховуються при оформленні замовлення</span>
+                {% endif %}
+            </div>
+
+            <div class='event-options-block' data-variants='{{ product.variants | json }}'>
+                {% for option in product.options_with_values %}
+                    <label class='event-label'>{{ option.name }}</label>
+                    <div class='event-options' data-option-index='{{ forloop.index0 }}'>
+                        {% for value in option.values %}
+                            <div
+                                    class='event-option'
+                                    data-value='{{ value | escape }}'
+                                    tabindex='0'
+                                    role='button'
+                                    aria-pressed='false'
+                            >
+                                {{ value }}
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class='event-description-block'>
+                <div class='event-description'>{{ product.description }}</div>
+            </div>
+        </div>
     </div>
-    <div class='event-right'>
-      <div class='event-title-block'>
-        <h1 class='event-title'>{{ product.title }}</h1>
-      </div>
-      <div class='event-price-block'>
-        <span class='event-price'>{{ product.price | money }}</span>
-      </div>
-      <div class='event-tax-block'>
-        {% if shop.taxes_included %}
-          <span class='event-tax-note'>Ціна з урахуванням податків</span>
-        {% else %}
-          <span class='event-tax-note'>Податки розраховуються при оформленні замовлення</span>
-        {% endif %}
-      </div>
-      <div class='event-options-block'>
-        {% assign options = product.options_with_values %}
-        {% assign variant_data = product.variants | json %}
-
-        {% for option in options %}
-          <label class='event-label'>{{ option.name }}</label>
-          <div class='event-options' data-option-index='{{ forloop.index0 }}'>
-            {% for value in option.values %}
-              <div
-                class='event-option'
-                data-value='{{ value | escape }}'
-                data-option-index='{{ forloop.parentloop.index0 }}'
-                tabindex='0'
-                role='button'
-                aria-pressed='false'
-              >
-                {{ value }}
-              </div>
-            {% endfor %}
-          </div>
-        {% endfor %}
-      </div>
-      <div class='event-description-block'>
-        <div class='event-description'>{{ product.description }}</div>
-      </div>
-    </div>
-  </div>
-
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const variantData = {{ variant_data | json }};
-      const selectedOptions = {};
-      const optionGroups = document.querySelectorAll('.event-options');
-
-      const updateOptionStates = () => {
-        optionGroups.forEach(group => {
-          const optionIndex = group.dataset.optionIndex;
-
-          group.querySelectorAll('.event-option').forEach(optionEl => {
-            const value = optionEl.dataset.value;
-            const tempSelection = { ...selectedOptions, [optionIndex]: value };
-
-            const match = variantData.find(variant => {
-              return variant.available && variant.options.every((optValue, i) => {
-                return !tempSelection[i] || tempSelection[i] === optValue;
-              });
-            });
-
-            if (match) {
-              optionEl.classList.remove('disabled');
-              optionEl.setAttribute('aria-disabled', 'false');
-              optionEl.setAttribute('tabindex', '0');
-            } else {
-              optionEl.classList.add('disabled');
-              optionEl.setAttribute('aria-disabled', 'true');
-              optionEl.setAttribute('tabindex', '-1');
-            }
-          });
-        });
-      };
-
-      const handleSelect = (el) => {
-        if (!el || el.classList.contains('disabled')) return;
-
-        const value = el.dataset.value;
-        const index = el.dataset.optionIndex;
-        const container = document.querySelector(`.event-options[data-option-index="${index}"]`);
-
-        if (!container) return;
-
-        // Знімаємо попередній вибір
-        container.querySelectorAll('.event-option').forEach(opt => {
-          opt.classList.remove('selected');
-          opt.setAttribute('aria-pressed', 'false');
-        });
-
-        // Ставимо новий
-        el.classList.add('selected');
-        el.setAttribute('aria-pressed', 'true');
-        selectedOptions[index] = value;
-
-        updateOptionStates(); // оновити доступність інших опцій
-      };
-
-
-      optionGroups.forEach(group => {
-        group.addEventListener('click', e => {
-          const el = e.target.closest('.event-option');
-          if (!el || el.classList.contains('disabled')) return;
-          handleSelect(el);
-        });
-
-        group.addEventListener('keydown', e => {
-          if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('event-option')) {
-            e.preventDefault();
-            handleSelect(e.target);
-          }
-        });
-      });
-
-      updateOptionStates();
-    });
-  </script>
 </section>
 
-<style>
-  .event-section {
-    padding: 40px;
-    font-family: sans-serif;
-  }
-
-  .event-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 5%;
-    max-width: 1200px;
-    margin: auto;
-  }
-
-  .event-left {
-    flex: 1 1 60%;
-  }
-
-  .event-left img {
-    width: 100%;
-    height: auto;
-    border-radius: 12px;
-  }
-
-  .event-right {
-    flex: 1 1 35%;
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-  }
-
-  .event-title-block h1 {
-    font-size: 32px;
-    margin: 0;
-  }
-
-  .event-price-block .event-price {
-    font-size: 20px;
-    font-weight: bold;
-  }
-
-  .event-tax-block .event-tax-note {
-    font-size: 14px;
-    color: #666;
-  }
-
-  .event-options-block {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  .event-label {
-    display: block;
-    font-weight: bold;
-    margin-bottom: 2px;
-  }
-
-  .event-options {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 4px;
-  }
-
-  .event-option {
-    padding: 4px 12px;
-    border: 1px solid rgba(18, 18, 18, 0.64);
-    border-radius: 9999px;
-    font-size: 14px;
-    background-color: white;
-    color: #101010;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    user-select: none;
-  }
-
-  .event-option.selected {
-    background-color: black;
-    color: white;
-  }
-
-  .event-option.disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-    text-decoration: line-through;
-    pointer-events: none;
-  }
-
-  .event-option:focus {
-    outline: 2px solid #aaa;
-  }
-
-  .event-description-block .event-description {
-    font-size: 16px;
-    color: #444;
-    line-height: 1.6;
-  }
-
-  @media (max-width: 1024px) {
-    .event-left,
-    .event-right {
-      flex: 1 1 calc(50% - 5%);
-    }
-  }
-
-  @media (max-width: 768px) {
-    .event-container {
-      flex-direction: column;
-    }
-
-    .event-left,
-    .event-right {
-      flex: 1 1 100%;
-    }
-  }
-</style>
+{{ 'event-product.css' | asset_url | stylesheet_tag }}
+{{ 'event-product.js' | asset_url | script_tag }}
