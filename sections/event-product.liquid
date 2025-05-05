@@ -36,6 +36,7 @@
           </div>
         {% endfor %}
       </div>
+      <button id="buy-now" class="buy-button" disabled>Buy it now</button>
 
       <div class="event-description-block">
         <div class="event-description">{{ product.description }}</div>
@@ -44,5 +45,5 @@
   </div>
 </section>
 
-{{ 'event-product.css' | asset_url | stylesheet_tag }}
+{{ 'component-event-product.css' | asset_url | stylesheet_tag }}
 {{ 'event-product.js' | asset_url | script_tag }}
