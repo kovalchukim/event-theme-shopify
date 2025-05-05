@@ -1,45 +1,46 @@
-<section class="event-section">
-  <div class="event-container">
-    <div class="event-left">
+<section class="product-section">
+  <div class="product-container">
+    <div class="product-image-wrapper">
       {{ product.featured_image | image_url: width: 800 | image_tag }}
     </div>
-    <div class="event-right">
-      <div class="event-title-block">
-        <h1 class="event-title">{{ product.title }}</h1>
-      </div>
-      <div class="event-price-block">
-        <span id="product-price" class="event-price">{{ product.price | money }}</span>
-      </div>
-      <div class="event-tax-block">
-        {% if shop.taxes_included %}
-          <span class="event-tax-note">Ціна з урахуванням податків</span>
-        {% else %}
-          <span class="event-tax-note">Податки розраховуються при оформленні замовлення</span>
-        {% endif %}
+
+    <div class="product-info">
+      <h1 class="product-title">{{ product.title }}</h1>
+      <div class="product-price-wrapper">
+        <span class="product-price">{{ product.price | money }}</span>
+        <div class="product-tax-info">
+          {% if shop.taxes_included %}
+            <span>Ціна з урахуванням податків</span>
+          {% else %}
+            <span>Податки розраховуються при оформленні замовлення</span>
+          {% endif %}
+        </div>
       </div>
 
-      <div class="event-options-block" data-variants="{{ product.variants | json | escape }}">
+      <div class="product-variants" data-variants="{{ product.variants | json | escape }}">
         {% for option in product.options_with_values %}
-          <label class="event-label">{{ option.name }}</label>
-          <div class="event-options" data-option-index="{{ forloop.index0 }}">
-            {% for value in option.values %}
-              <div
-                class="event-option"
-                data-value="{{ value | escape }}"
-                tabindex="0"
-                role="button"
-                aria-pressed="false"
-              >
-                {{ value }}
-              </div>
-            {% endfor %}
+          <div class="variant-group" data-option-index="{{ forloop.index0 }}">
+            <label class="variant-group-label">{{ option.name }}</label>
+            <div class="variant-group-options">
+              {% for value in option.values %}
+                <button
+                  type="button"
+                  class="variant-option"
+                  data-value="{{ value | escape }}"
+                  aria-pressed="false"
+                >
+                  {{ value }}
+                </button>
+              {% endfor %}
+            </div>
           </div>
         {% endfor %}
       </div>
-      <button id="buy-now" class="buy-button" disabled>Buy it now</button>
 
-      <div class="event-description-block">
-        <div class="event-description">{{ product.description }}</div>
+      <button id="buy-now-button" class="product-buy-button" disabled>Check out</button>
+
+      <div class="product-description">
+        {{ product.description }}
       </div>
     </div>
   </div>

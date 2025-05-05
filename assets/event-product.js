@@ -1,100 +1,98 @@
 document.addEventListener('DOMContentLoaded', () => {
-  const optionGroups = document.querySelectorAll('.event-options');
-  const variantData = JSON.parse(document.querySelector('.event-options-block').dataset.variants);
+  const variantGroups = document.querySelectorAll('.variant-group');
+  const variantData = JSON.parse(document.querySelector('.product-variants')?.dataset.variants || '[]');
   const selectedOptions = {};
-  const buyButton = document.getElementById('buy-now');
+  const buyNowButton = document.getElementById('buy-now-button');
+  const priceElement = document.querySelector('.product-price');
 
-  const updateOptionStates = () => {
-    optionGroups.forEach(group => {
+  if (!variantGroups.length || !variantData.length || !buyNowButton || !priceElement) return;
+
+  const updateDisabledOptions = () => {
+    variantGroups.forEach(group => {
       const optionIndex = group.dataset.optionIndex;
 
-      if (optionIndex === "0") return;
+      if (optionIndex === '0') return;
 
-      group.querySelectorAll('.event-option').forEach(optionEl => {
-        const value = optionEl.dataset.value;
-        const tempSelection = { ...selectedOptions, [optionIndex]: value };
+      group.querySelectorAll('.variant-option').forEach(optionEl => {
+        const optionValue = optionEl.dataset.value;
+        const tempSelection = { ...selectedOptions, [optionIndex]: optionValue };
 
-        const match = variantData.find(variant => {
-          return variant.available && variant.options.every((optValue, i) => {
-            return !tempSelection[i] || tempSelection[i] === optValue;
-          });
-        });
+        const isMatch = variantData.some(variant =>
+            variant.available && variant.options.every((val, i) =>
+              !tempSelection[i] || tempSelection[i] === val
+            )
+        );
 
-        if (match) {
-          optionEl.classList.remove('disabled');
-        } else {
-          optionEl.classList.add('disabled');
-        }
+        optionEl.classList.toggle('disabled', !isMatch);
+        optionEl.disabled = !isMatch;
       });
     });
-
-    updateBuyButton();
-    updatePrice();
   };
 
-  const updatePrice = () => {
+  const updateProductPrice = () => {
     const selectedCount = Object.keys(selectedOptions).length;
-    const totalOptions = optionGroups.length;
-    const priceEl = document.getElementById('product-price');
+    const totalOptions = variantGroups.length;
 
-    let match;
+    let matchingVariant = null;
 
     if (selectedCount === totalOptions) {
-      match = variantData.find(variant => {
-        return variant.available && variant.options.every((optValue, i) => {
-          return selectedOptions[i] === optValue;
-        });
-      });
+      matchingVariant = variantData.find(variant =>
+        variant.available && variant.options.every((val, i) => selectedOptions[i] === val)
+      );
     }
 
-    if (match) {
-      priceEl.textContent = (match.price / 100).toFixed(2) + ' ' + Shopify.currency.active;
+    if (matchingVariant) {
+      priceElement.textContent = formatMoney(matchingVariant.price);
     } else {
-      // Якщо повністю не вибрано — показати мінімальну ціну
-      const cheapest = variantData
-        .filter(v => v.available)
+      const cheapestVariant = variantData
+        .filter(variant => variant.available)
         .sort((a, b) => a.price - b.price)[0];
 
-      if (cheapest) {
-        priceEl.textContent = (cheapest.price / 100).toFixed(2) + ' ' + Shopify.currency.active;
+      if (cheapestVariant) {
+        priceElement.textContent = formatMoney(cheapestVariant.price);
       }
     }
   };
 
-  const updateBuyButton = () => {
+  const formatMoney = (cents) => {
+    return (cents / 100).toFixed(2) + ' ' + (Shopify?.currency?.active || 'UAH');
+  };
+
+  const updateBuyNowButtonState = () => {
     const selectedCount = Object.keys(selectedOptions).length;
-    const totalOptions = optionGroups.length;
+    const totalOptions = variantGroups.length;
 
-    if (selectedCount < totalOptions) {
-      buyButton.disabled = true;
-      return;
-    }
+    const matchingVariant = variantData.find(variant =>
+      variant.available && variant.options.every((val, i) => selectedOptions[i] === val)
+    );
 
-    const match = variantData.find(variant => {
-      return variant.available && variant.options.every((optValue, i) => {
-        return selectedOptions[i] === optValue;
-      });
+    buyNowButton.disabled = !(matchingVariant && selectedCount === totalOptions);
+  };
+
+  const handleOptionSelect = (button) => {
+    if (button.classList.contains('selected')) return;
+
+    const group = button.closest('.variant-group');
+    const optionIndex = group.dataset.optionIndex;
+    const optionValue = button.dataset.value;
+
+    group.querySelectorAll('.variant-option').forEach(opt => {
+      opt.classList.remove('selected');
+      opt.setAttribute('aria-pressed', 'false');
     });
 
-    buyButton.disabled = !match;
-  };
-  const handleSelect = (el) => {
-    if (!el) return;
+    button.classList.add('selected');
+    button.setAttribute('aria-pressed', 'true');
+    selectedOptions[optionIndex] = optionValue;
 
-    const value = el.dataset.value;
-    const index = el.closest('.event-options').dataset.optionIndex;
-
-    const container = document.querySelector(`.event-options[data-option-index="${index}"]`);
-    if (!container) return;
-
-    if (index === "0") {
-      Object.keys(selectedOptions).forEach(i => {
-        if (i !== "0") delete selectedOptions[i];
+    if (optionIndex === '0') {
+      Object.keys(selectedOptions).forEach(index => {
+        if (index !== '0') delete selectedOptions[index];
       });
 
-      document.querySelectorAll('.event-options').forEach(group => {
-        if (group.dataset.optionIndex !== "0") {
-          group.querySelectorAll('.event-option').forEach(opt => {
+      variantGroups.forEach(group => {
+        if (group.dataset.optionIndex !== '0') {
+          group.querySelectorAll('.variant-option').forEach(opt => {
             opt.classList.remove('selected');
             opt.setAttribute('aria-pressed', 'false');
           });
@@ -102,33 +100,39 @@ document.addEventListener('DOMContentLoaded', () => {
       });
     }
 
-    container.querySelectorAll('.event-option').forEach(opt => {
-      opt.classList.remove('selected');
-      opt.setAttribute('aria-pressed', 'false');
-    });
-
-    el.classList.add('selected');
-    el.setAttribute('aria-pressed', 'true');
-    selectedOptions[index] = value;
-
-    updateOptionStates();
+    updateDisabledOptions();
+    updateProductPrice();
+    updateBuyNowButtonState();
   };
 
-
-  optionGroups.forEach(group => {
+  variantGroups.forEach(group => {
     group.addEventListener('click', e => {
-      const el = e.target.closest('.event-option');
-      if (el) handleSelect(el);
+      const option = e.target.closest('.variant-option');
+      if (option && !option.classList.contains('disabled')) {
+        handleOptionSelect(option);
+      }
     });
 
     group.addEventListener('keydown', e => {
-      if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('event-option')) {
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.variant-option:not(.disabled)')) {
         e.preventDefault();
-        handleSelect(e.target);
+        handleOptionSelect(e.target);
       }
     });
   });
 
-  updateOptionStates();
-  updatePrice();
+  buyNowButton.addEventListener('click', () => {
+    const matchingVariant = variantData.find(variant =>
+      variant.available && variant.options.every((val, i) => selectedOptions[i] === val)
+    );
+
+    if (matchingVariant) {
+      const quantity = 1;
+      window.location.href = `/cart/${matchingVariant.id}:${quantity}`;
+    }
+  });
+
+  updateDisabledOptions();
+  updateProductPrice();
+  updateBuyNowButtonState();
 });
