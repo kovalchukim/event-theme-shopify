@@ -18,7 +18,7 @@
         {% endif %}
       </div>
 
-      <div class="event-options-block" data-variants="{{ product.variants | json }}">
+      <div class="event-options-block" data-variants="{{ product.variants | json | escape }}">
         {% for option in product.options_with_values %}
           <label class="event-label">{{ option.name }}</label>
           <div class="event-options" data-option-index="{{ forloop.index0 }}">
