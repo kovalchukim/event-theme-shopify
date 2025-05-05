@@ -1,4 +1,16 @@
-# Dawn
+# Event Theme
+
+This is a custom Shopify theme built for event-based product pages with dynamic variant selection and price display.
+
+## Commands
+
+### Format code with Prettier
+
+```bash
+npm run format
+```
+
+
 
 [![Build status](https://github.com/shopify/dawn/actions/workflows/ci.yml/badge.svg?branch=main)](https://github.com/Shopify/dawn/actions/workflows/ci.yml?query=branch%3Amain)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg?color=informational)](/.github/CONTRIBUTING.md)
