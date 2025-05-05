@@ -1,0 +1,9 @@
+{
+  "name": "eventorama-theme",
+  "private": true,
+  "devDependencies": {
+    "@shopify/prettier-plugin-liquid": "^1.9.3",
+    "prettier": "^3.5.3",
+    "prettier-plugin-liquid": "^0.0.1-security"
+  }
+}
