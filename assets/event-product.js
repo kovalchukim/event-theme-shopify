@@ -121,6 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   });
 
+
   buyNowButton.addEventListener('click', () => {
     const matchingVariant = variantData.find(variant =>
       variant.available && variant.options.every((val, i) => selectedOptions[i] === val)
