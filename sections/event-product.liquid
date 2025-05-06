@@ -5,46 +5,169 @@
     </div>
 
     <div class="product-info">
-      <h1 class="product-title">{{ product.title }}</h1>
-      <div class="product-price-wrapper">
-        <span class="product-price">{{ product.price | money }} </span>
-        <div class="product-tax-info">
-          {% if shop.taxes_included %}
-            <span>Ціна з урахуванням податків</span>
-          {% else %}
-            <span>Податки розраховуються при оформленні замовлення</span>
-          {% endif %}
-        </div>
-      </div>
+      {% assign product_form_id = 'product-form-' | append: section.id %}
 
-      <div class="product-variants" data-variants="{{ product.variants | json | escape }}">
-        {% for option in product.options_with_values %}
-          <div class="variant-group" data-option-index="{{ forloop.index0 }}">
-            <label class="variant-group-label">{{ option.name }}</label>
-            <div class="variant-group-options">
-              {% for value in option.values %}
-                <button
-                  type="button"
-                  class="variant-option"
-                  data-value="{{ value | escape }}"
-                  aria-pressed="false"
-                >
-                  {{ value }}
-                </button>
+      {% for block in section.blocks %}
+        {% case block.type %}
+          {% when 'title' %}
+            <h1 class="product-title" {{ block.shopify_attributes }}>
+              {{ product.title | escape }}
+            </h1>
+
+          {% when 'price' %}
+            <div class="product-price-wrapper" {{ block.shopify_attributes }}>
+              <span class="product-price">
+                {{ product.selected_or_first_available_variant.price | money }}
+              </span>
+              <div class="product-tax-info">
+                {% if shop.taxes_included %}
+                  <span>Ціна з урахуванням податків</span>
+                {% else %}
+                  <span>Податки розраховуються при оформленні замовлення</span>
+                {% endif %}
+              </div>
+            </div>
+
+          {% when 'variant_picker' %}
+            <div
+              class="product-variants"
+              data-variants="{{ product.variants | json | escape }}"
+              {{ block.shopify_attributes }}
+            >
+              {% for option in product.options_with_values %}
+                <div class="variant-group" data-option-index="{{ forloop.index0 | escape }}">
+                  <label class="variant-group-label">{{ option.name | escape }}</label>
+                  <div class="variant-group-options">
+                    {% for value in option.values %}
+                      <button
+                        type="button"
+                        class="variant-option"
+                        data-value="{{ value | escape }}"
+                        aria-pressed="false"
+                      >
+                        {{ value | escape }}
+                      </button>
+                    {% endfor %}
+                  </div>
+                </div>
               {% endfor %}
             </div>
-          </div>
-        {% endfor %}
-      </div>
 
-      <button id="buy-now-button" class="product-buy-button" disabled>Check out</button>
+          {% when 'buy_buttons' %}
+            <button id="buy-now-button" class="product-buy-button" disabled {{ block.shopify_attributes }}>
+              Check out
+            </button>
 
-      <div class="product-description">
-        {{ product.description }}
-      </div>
+          {% when 'description' %}
+            {% if product.description != blank %}
+              <div class="product-description" {{ block.shopify_attributes }}>
+                {{ product.description }}
+              </div>
+            {% endif %}
+        {% endcase %}
+      {% endfor %}
     </div>
   </div>
 </section>
 
 {{ 'component-event-product.css' | asset_url | stylesheet_tag }}
 {{ 'event-product.js' | asset_url | script_tag }}
+
+{% schema %}
+{
+  "name": "Event Product",
+  "tag": "section",
+  "class": "section",
+  "settings": [
+    {
+      "type": "checkbox",
+      "id": "enable_sticky_info",
+      "default": true,
+      "label": "Enable sticky info"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "default": 36,
+      "min": 0,
+      "max": 100,
+      "step": 4
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "default": 36,
+      "min": 0,
+      "max": 100,
+      "step": 4
+    }
+  ],
+  "blocks": [
+    {
+      "type": "title",
+      "name": "Product title",
+      "limit": 1
+    },
+    {
+      "type": "price",
+      "name": "Product price",
+      "limit": 1
+    },
+    {
+      "type": "variant_picker",
+      "name": "Variant picker",
+      "settings": [
+        {
+          "type": "select",
+          "id": "picker_type",
+          "label": "Picker type",
+          "default": "button",
+          "options": [
+            { "value": "button", "label": "Button" },
+            { "value": "dropdown", "label": "Dropdown" }
+          ]
+        }
+      ],
+      "limit": 1
+    },
+    {
+      "type": "buy_buttons",
+      "name": "Buy buttons",
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_dynamic_checkout",
+          "default": true,
+          "label": "Show dynamic checkout button"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gift_card_recipient",
+          "default": true,
+          "label": "Enable gift card recipient"
+        }
+      ],
+      "limit": 1
+    },
+    {
+      "type": "description",
+      "name": "Product description",
+      "limit": 1
+    }
+  ],
+  "presets": [
+    {
+      "name": "Event Product",
+      "blocks": [
+        { "type": "title" },
+        { "type": "price" },
+        { "type": "variant_picker" },
+        { "type": "buy_buttons" },
+        { "type": "description" }
+      ]
+    }
+  ]
+}
+{% endschema %}
