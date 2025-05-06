@@ -1,0 +1,143 @@
+.product-section {
+  padding: 40px;
+  font-family: sans-serif;
+}
+
+.product-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.product-image-wrapper {
+  flex: 1 1 60%;
+}
+
+.product-image-wrapper img {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+}
+
+.product-info {
+  flex: 1 1 35%;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-title {
+  font-size: 32px;
+  margin: 0;
+}
+
+.product-price-wrapper {
+  line-height: 1.4;
+}
+
+.product-price {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.product-tax-info {
+  font-size: 14px;
+  color: #666;
+}
+
+.product-variants {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.variant-group-label {
+  font-weight: bold;
+}
+
+.variant-group-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.variant-option {
+  padding: 8px 16px;
+  border: 1px solid rgba(18, 18, 18, 0.64);
+  border-radius: 9999px;
+  font-size: 14px;
+  background-color: white;
+  color: #101010;
+  cursor: pointer;
+  transition: background-color 0.2s ease, color 0.2s ease, opacity 0.2s ease;
+}
+
+.variant-option[aria-pressed="true"] {
+  background-color: black;
+  color: white;
+}
+
+.variant-option.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  text-decoration: line-through;
+  pointer-events: none;
+}
+
+.variant-option:focus-visible {
+  outline: 2px solid #aaa;
+}
+
+.product-buy-button {
+  width: 100%;
+  padding: 14px 20px;
+  background-color: black;
+  color: white;
+  font-size: 16px;
+  font-weight: 500;
+  letter-spacing: 1px;
+  border: none;
+  cursor: pointer;
+  transition: background-color 0.2s ease, opacity 0.2s ease;
+  margin-top: 20px;
+  max-width: 400px;
+}
+
+.product-buy-button:hover:enabled {
+  background-color: #222;
+}
+
+.product-buy-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.product-description {
+  font-size: 16px;
+  color: #444;
+  line-height: 1.6;
+  margin-top: 10px;
+}
+
+@media (max-width: 1024px) {
+  .product-image-wrapper,
+  .product-info {
+    flex: 1 1 calc(50% - 5%);
+  }
+}
+
+@media (max-width: 768px) {
+  .product-container {
+    flex-direction: column;
+  }
+
+  .product-image-wrapper,
+  .product-info {
+    flex: 1 1 100%;
+  }
+
+}
+
